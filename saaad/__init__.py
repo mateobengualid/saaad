@@ -3,41 +3,49 @@ from flask import Flask, request, session, g, redirect, url_for, abort, \
      render_template, flash
 
 class SaaadPlugin (rb.Plugin):
+    # Configuration constants for flask.
+    APP_NAME = "saaad"
+    DEBUG = True
+
     def __init__(self):
         rb.Plugin.__init__(self)
         self.shell = shell.props.shell_player.pause()
         
     def activate(self, shell):
         self.shell = shell
+        self.
+        app.run()
         
     def deactivate(self, shell):
         del self.shell
         
+    def start_app(self):
+        app = Flask(saaad)
+        app.config.from_object(saaad)
+        app.config.from_envvar('FLASKR_SETTINGS', silent=True)
+        
     def do_action(self, action):
         value = action()
-        return render_template('show_result.html', result=value)
+        return flask.jsonify(result=value)
+        
+    def do_action_with_result(self, action):
+        value = action()
+        return flask.jsonify(value)
     
     @app.route('/isplaying', methods=['GET'])
     def get_is_playing(self):
-        '''Returns if it is playing.'''
-        if self.is_playing():
-            uri = self.iface.getPlayingUri()
-            song = self.rbshell.getSongProperties(uri)
-
-            return songretriever.Song(song['artist'],
-                                      song['album'],
-                                      song['title'])
+        '''Returns True if a song is being played.'''
+        return do_action_with_result(self.props.shell_player.getPlaying)
 
     @app.route('/currentsong', methods=['GET'])
     def get_current_song(self):
         '''Returns the current song.'''
         if self.is_playing():
-            uri = self.iface.getPlayingUri()
-            song = self.getSongProperties(uri)
-
-            return songretriever.Song(song['artist'],
-                                      song['album'],
-                                      song['title'])
+            uri = self.props.shell_player.getPlayingUri()
+            song = self.props.shell_player.getSongProperties(uri)
+            return jsonify(song)
+        else:
+            return jsonify()
 
     @app.route('/pause', methods=['POST'])
     def do_pause(self):
@@ -48,7 +56,7 @@ class SaaadPlugin (rb.Plugin):
         return self.do_action(shell.props.shell_player.play)
 
     @app.route('/stop', methods=['POST'])
-    def do_play():
+    def do_stop():
         return self.do_action(shell.props.shell_player.stop)
 
     @app.route('/playpause', methods=['POST'])
