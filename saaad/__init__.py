@@ -20,6 +20,7 @@ class SaaadPlugin (rb.Plugin):
 
     def __init__(self):
         rb.Plugin.__init__(self)
+        self.shell = None
         self.app_process = multiprocessing.Process(target=app.run)
         self.app_process.daemon = True
         
