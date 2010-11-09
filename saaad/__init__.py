@@ -1,6 +1,5 @@
 import rb
-from flask import Flask, request, session, g, redirect, url_for, abort, \
-     render_template, flash
+from flask import Flask, jsonify
 
 class SaaadPlugin (rb.Plugin):
     # Configuration constants for flask.
@@ -26,11 +25,11 @@ class SaaadPlugin (rb.Plugin):
         
     def do_action(self, action):
         value = action()
-        return flask.jsonify(result=value)
+        return jsonify(result=value)
         
     def do_action_with_result(self, action):
         value = action()
-        return flask.jsonify(value)
+        return jsonify(value)
     
     @app.route('/isplaying', methods=['GET'])
     def get_is_playing(self):
