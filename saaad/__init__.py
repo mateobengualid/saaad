@@ -1,6 +1,7 @@
 '''Module with the Spooky Action At A Distance plugin for Rhythmbox.'''
 
 import rb
+import multiprocessing
 from flask import Flask, jsonify
 
 APP_NAME = "saaad"
@@ -19,7 +20,8 @@ class SaaadPlugin (rb.Plugin):
 
     def __init__(self):
         rb.Plugin.__init__(self)
-        self.app = None
+        self.app_process = multiprocessing.Process(target=app.run)
+        self.app_process.daemon = True
         
     def activate(self, shell):
         '''Activate the plugin.
@@ -29,7 +31,7 @@ class SaaadPlugin (rb.Plugin):
         documentation.
         '''
         self.shell = shell
-        app.run()
+        self.app_process.start()
         
     def deactivate(self, shell):
         '''Deactivate the plugin.
@@ -38,6 +40,7 @@ class SaaadPlugin (rb.Plugin):
         the shell. This method must be overwritten, as it is indicated by the
         Rhythmbox documentation.
         '''
+        self.app_process.start()
         del self.shell
                 
     def do_action(self, action):
