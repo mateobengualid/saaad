@@ -21,8 +21,7 @@ class SaaadPlugin (rb.Plugin):
     def __init__(self):
         rb.Plugin.__init__(self)
         self.shell = None
-        self.app_process = multiprocessing.Process(target=app.run)
-        self.app_process.daemon = True
+        self.app_process = None
         
     def activate(self, shell):
         '''Activate the plugin.
@@ -31,8 +30,10 @@ class SaaadPlugin (rb.Plugin):
         method must be overwritten, as it is indicated by the Rhythmbox
         documentation.
         '''
-        self.shell = shell
+        self.app_process = multiprocessing.Process(target=app.run)
+        self.app_process.daemon = True
         self.app_process.start()
+        self.shell = shell
         
     def deactivate(self, shell):
         '''Deactivate the plugin.
@@ -41,12 +42,14 @@ class SaaadPlugin (rb.Plugin):
         the shell. This method must be overwritten, as it is indicated by the
         Rhythmbox documentation.
         '''
-        self.app_process.start()
+        self.app_process.terminate()
+        self.app_process = None
         del self.shell
                 
     def do_action(self, action):
         '''Execute an action on the player that returns only a single value.'''
         value = action()
+        print value
         return jsonify(result=value)
         
     def do_action_with_result(self, action):
@@ -54,11 +57,19 @@ class SaaadPlugin (rb.Plugin):
         value = action()
         return jsonify(value)
     
+    @check_wtf_is_happening
     @app.route('/isplaying', methods=['GET'])
     def get_is_playing(self):
         '''Returns True if a song is being played.'''
-        action = self.shell.props.shell_player.getPlaying
-        return self.do_action_with_result(action)
+        return app.make_response("Hola")
+        #logger.info(self.shell)
+        #logger.info(self.shell.props)
+        #logger.info(self.shell.props.shell_player)
+        #logger.info(self.shell.props.shell_player.getPlaying)
+        #logger.info(self.shell.props.shell_player.getPlaying())
+        #action = self.shell.props.shell_player.getPlaying
+        #return self.do_action_with_result(action)
+        #return "Something"
 
     @app.route('/currentsong', methods=['GET'])
     def get_current_song(self):
@@ -93,3 +104,15 @@ class SaaadPlugin (rb.Plugin):
     @app.route('/go_previous', methods=['POST'])
     def do_previous_song(self):
         return self.do_action(self.shell.props.shell_player.do_previous)
+        
+class check_wtf_is_happening(object):
+    def __init__(self, func, *a):
+        self.func = func
+        self.args = a
+    def __call__(self, *args):
+        a = self.args + args
+        try:
+            self.func(*a)
+        finally:
+            print "Something"
+            return app.make_response("Hola")
