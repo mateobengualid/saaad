@@ -31,12 +31,12 @@ class FlaskServer:
         self.app_process.terminate()
         self.app_process = None
         
-def do_action(action):
+def do(action):
     '''Execute an action and return only a single value.'''
     value = action()
     return jsonify(result=value)
     
-def do_action_with_result(action):
+def do_with_result(action):
     '''Execute an action and return the result as a JSON map.'''
     value = action()
     return jsonify(value)
