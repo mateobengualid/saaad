@@ -2,7 +2,7 @@
 
 import rb
 import multiprocessing
-from flask import Flask, jsonify
+from flask import Flask, jsonify, logging
 
 APP_NAME = "saaad"
 
@@ -57,7 +57,6 @@ class SaaadPlugin (rb.Plugin):
         value = action()
         return jsonify(value)
     
-    @check_wtf_is_happening
     @app.route('/isplaying', methods=['GET'])
     def get_is_playing(self):
         '''Returns True if a song is being played.'''
@@ -104,15 +103,3 @@ class SaaadPlugin (rb.Plugin):
     @app.route('/go_previous', methods=['POST'])
     def do_previous_song(self):
         return self.do_action(self.shell.props.shell_player.do_previous)
-        
-class check_wtf_is_happening(object):
-    def __init__(self, func, *a):
-        self.func = func
-        self.args = a
-    def __call__(self, *args):
-        a = self.args + args
-        try:
-            self.func(*a)
-        finally:
-            print "Something"
-            return app.make_response("Hola")
