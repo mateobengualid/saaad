@@ -3,35 +3,35 @@
 import multiprocessing
 from flask import Flask, jsonify
 
-APP_NAME = "saaad"
+# Flask application.
+APP = Flask("server")
+APP_PROCESS = None
 
-app = Flask(APP_NAME)
-app.config.from_object(APP_NAME)
-app.config.from_envvar('FLASKR_SETTINGS', silent=True)
+# Flask constants.
+APP.config['DEBUG'] = True
 
-class FlaskServer:
-    '''
-    Class that acts as a middle-man between the Flask server and the Plugin.
-    '''
-    # Configuration constants for flask.
-    DEBUG = True
+# Plugin object.
+PLUGIN = None
 
-    def __init__(self, shell):
-        self.app_process = None
-        self.shell = shell
+def start_server():
+    '''Starts the Flask server.'''
+    if not PLUGIN:
+        raise Exception("The plugin is still not loaded.")
+    
+    global APP_PROCESS
+    APP_PROCESS = multiprocessing.Process(target=APP.run)
+    APP_PROCESS.daemon = True
+    APP_PROCESS.start()
+    
+def stop_server():
+    '''Stops the Flask server.'''
+    global APP_PROCESS
+    if not APP_PROCESS:
+        raise Exception("The process is not running.")
+    APP_PROCESS.terminate()
+    APP_PROCESS = None
         
-    def start(self):
-        '''Starts the Flask server.'''
-        self.app_process = multiprocessing.Process(target=app.run)
-        self.app_process.daemon = True
-        self.app_process.start()
-        
-    def stop(self):
-        '''Stops the Flask server.'''
-        self.app_process.terminate()
-        self.app_process = None
-        
-def do(action):
+def do_simple(action):
     '''Execute an action and return only a single value.'''
     value = action()
     return jsonify(result=value)
@@ -40,3 +40,43 @@ def do_with_result(action):
     '''Execute an action and return the result as a JSON map.'''
     value = action()
     return jsonify(value)
+    
+@APP.route("/isplaying", methods=['GET'])
+def is_playing():
+    '''Returns True if a song is being played.'''
+    return do_simple(PLUGIN.get_is_playing)
+
+@APP.route("/currentsong", methods=['GET'])
+def current_song():
+    '''Returns the current song data or an empty dictionary.'''
+    return do_with_result(PLUGIN.get_current_song)
+
+@APP.route("/pause", methods=['POST'])
+def pause_song():
+    '''Returns True if the current song was paused.'''
+    return do_simple(PLUGIN.do_pause)
+
+@APP.route("/play", methods=['POST'])
+def play_song():
+    '''Returns True if the current song started to play.'''
+    return do_simple(PLUGIN.do_play)
+
+@APP.route("/stop", methods=['POST'])
+def stop_song():
+    '''Returns True if the current song was stopped.'''
+    return do_simple(PLUGIN.do_stop)
+
+@APP.route("/playpause", methods=['POST'])
+def playpause():
+    '''Returns True if the current song alternated between play and pause.'''
+    return do_simple(PLUGIN.do_playpause)
+
+@APP.route("/go_next_song", methods=['POST'])
+def next_song():
+    '''Returns True if the next song started playing.'''
+    return do_simple(PLUGIN.do_next_song)
+
+@APP.route("/go_previous", methods=['POST'])
+def previous_song():
+    '''Returns True if the previous song started playing.'''
+    return do_simple(PLUGIN.do_previous_song)
