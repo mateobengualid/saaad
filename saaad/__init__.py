@@ -24,8 +24,8 @@ class SaaadPlugin (rb.Plugin):
         method must be overwritten, as it is indicated by the Rhythmbox
         documentation.
         '''
-        self.server.start()
         self.shell = shell
+        self.server.start()
         
     def deactivate(self, shell):
         '''Deactivate the plugin.
