@@ -1,11 +1,13 @@
 '''Module with the Flask server actions.'''
 
-import multiprocessing
+import os
+import signal
+import threading
 from flask import Flask, jsonify
 
 # Flask application.
 APP = Flask("server")
-APP_PROCESS = None
+APP_THREAD = None
 
 # Flask constants.
 APP.config['DEBUG'] = True
@@ -18,18 +20,22 @@ def start_server():
     if not PLUGIN:
         raise Exception("The plugin is still not loaded.")
     
-    global APP_PROCESS
-    APP_PROCESS = multiprocessing.Process(target=APP.run)
-    APP_PROCESS.daemon = True
-    APP_PROCESS.start()
+    global APP_THREAD
+    APP_THREAD = threading.Thread(target=APP.run)
+    APP_THREAD.daemon = True
+    APP_THREAD.start()
     
 def stop_server():
     '''Stops the Flask server.'''
-    global APP_PROCESS
-    if not APP_PROCESS:
+    global APP_THREAD
+    if not APP_THREAD:
         raise Exception("The process is not running.")
-    APP_PROCESS.terminate()
-    APP_PROCESS = None
+    try:
+        os.kill(APP_THREAD, signal.SIGKILL)
+    except OSError:
+        pass
+
+    APP_THREAD = None
         
 def do_simple(action):
     '''Execute an action and return only a single value.'''
