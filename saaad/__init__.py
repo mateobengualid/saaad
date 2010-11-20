@@ -20,7 +20,7 @@ class SaaadPlugin (rb.Plugin):
         method must be overwritten, as it is indicated by the Rhythmbox
         documentation.
         '''
-        self["shell"] = shell
+        self.shell = shell
         server.PLUGIN = self
         server.start_server()
         
@@ -37,11 +37,11 @@ class SaaadPlugin (rb.Plugin):
         
     def get_is_playing(self):
         '''Returns True if a song is being played.'''
-        return self.shell.props.shell_player.getPlaying()
+        return self.shell.props.shell_player.get_playing()
 
     def get_current_song(self):
         '''Returns the current song data or an empty dictionary.'''
-        if self.shell.props.shell_player.getPlaying():
+        if self.shell.props.shell_player.get_playing():
             uri = self.shell.props.shell_player.getPlayingUri()
             song = self.shell.props.shell_player.getSongProperties(uri)
             return song
