@@ -21,6 +21,7 @@ class SaaadPlugin (rb.Plugin):
         documentation.
         '''
         self.shell = shell
+        self.do_pause()
         server.PLUGIN = self
         server.start_server()
         
