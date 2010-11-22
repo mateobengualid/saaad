@@ -20,7 +20,7 @@ def start_server():
     
     global APP_THREAD
     func = lambda : bottle.run(app=APP, host="localhost", port="5000")
-    APP_THREAD = threading.Thread(target=fun)
+    APP_THREAD = threading.Thread(target=func)
     APP_THREAD.daemon = True
     APP_THREAD.start()
     
