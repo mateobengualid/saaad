@@ -12,6 +12,7 @@ class SaaadPlugin (rb.Plugin):
     def __init__(self):
         rb.Plugin.__init__(self)
         self.shell = None
+        self.player = None
         
     def activate(self, shell):
         '''Activate the plugin.
@@ -21,6 +22,7 @@ class SaaadPlugin (rb.Plugin):
         documentation.
         '''
         self.shell = shell
+        self.player = shell.get_player()
         server.PLUGIN = self
         server.start_server()
         
@@ -33,17 +35,17 @@ class SaaadPlugin (rb.Plugin):
         '''
         server.stop_server()
         server.PLUGIN = None        
-        del self.shell
+        self.shell = None
         
     def get_is_playing(self):
         '''Returns True if a song is being played.'''
-        return self.shell.props.shell_player.get_playing()
+        return self.player.get_playing()
 
     def get_current_song(self):
         '''Returns the current song data or an empty dictionary.'''
-        if self.shell.props.shell_player.get_playing():
-            uri = self.shell.props.shell_player.getPlayingUri()
-            song = self.shell.props.shell_player.getSongProperties(uri)
+        if self.player.get_playing():
+            uri = shell.get_player().get_playing_entry().get_playback_uri()
+            song = self.player.getSongProperties(uri)
             return song
         else:
             return {}
