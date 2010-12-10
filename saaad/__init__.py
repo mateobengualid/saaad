@@ -21,6 +21,7 @@ class SaaadPlugin (rb.Plugin):
         method must be overwritten, as it is indicated by the Rhythmbox
         documentation.
         '''
+        print "Activating for shell", shell
         self.shell = shell
         self.player = shell.get_player()
         server.PLUGIN = self
@@ -33,6 +34,7 @@ class SaaadPlugin (rb.Plugin):
         the shell. This method must be overwritten, as it is indicated by the
         Rhythmbox documentation.
         '''
+        print "Deactivating for shell", shell
         server.stop_server()
         server.PLUGIN = None        
         self.shell = None
@@ -44,32 +46,33 @@ class SaaadPlugin (rb.Plugin):
     def get_current_song(self):
         '''Returns the current song data or an empty dictionary.'''
         if self.player.get_playing():
-            uri = shell.get_player().get_playing_entry().get_playback_uri()
-            song = self.player.getSongProperties(uri)
-            return song
+            uri = self.player.get_playing_entry().get_playback_uri()
+            return uri
+            #song = self.player.getSongProperties(uri)
+            #return song
         else:
             return {}
             
     def do_pause(self):
         '''Returns True if the song being played is paused.'''
-        return self.shell.props.shell_player.pause()
+        return self.player.pause()
 
     def do_play(self):
         '''Returns True if the song being played is played.'''
-        return self.shell.props.shell_player.play()
+        return self.player.play()
 
     def do_stop(self):
         '''Returns True if the song being played is stopped.'''
-        return self.shell.props.shell_player.stop()
+        return self.player.stop()
 
     def do_playpause(self):
         '''Returns True if the song alternated between play and pause state.'''
-        return self.shell.props.shell_player.playpause()
+        return self.player.playpause()
 
     def do_next_song(self):
         '''Returns True if the next song starts playing.'''
-        return self.shell.props.shell_player.do_next()
+        return self.player.do_next()
 
     def do_previous_song(self):
         '''Returns True if the previous song starts playing.'''
-        return self.shell.props.shell_player.do_previous()
+        return self.player.do_previous()
